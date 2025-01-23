@@ -31,7 +31,7 @@ public class Event {
     private String bairro;
 
     @Field("cidade")
-    private String cidade;
+    private String localidade;
 
     @Field("uf")
     private String uf;

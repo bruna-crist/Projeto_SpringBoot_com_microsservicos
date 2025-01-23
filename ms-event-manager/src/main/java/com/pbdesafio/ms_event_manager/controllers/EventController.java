@@ -8,10 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/events")
@@ -33,5 +30,15 @@ public class EventController {
                 .header("Location", "/events/" + createdEvent.getId())
                 .body(createdEventDTO);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDTO> getEventById(@PathVariable String id) {
+        Event event = eventService.getEventById(id);
+        if (event == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se o evento não for encontrado
+        }
+        return ResponseEntity.ok(EventMapper.toDto(event));
+    }
+
 }
 
