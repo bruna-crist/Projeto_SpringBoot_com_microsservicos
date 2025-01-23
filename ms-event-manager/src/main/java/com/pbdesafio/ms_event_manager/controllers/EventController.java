@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/events")
 public class EventController {
@@ -35,9 +37,17 @@ public class EventController {
     public ResponseEntity<EventDTO> getEventById(@PathVariable String id) {
         Event event = eventService.getEventById(id);
         if (event == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se o evento não for encontrado
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok(EventMapper.toDto(event));
+    }
+    @GetMapping("/get-all-events")
+    public ResponseEntity<List<EventDTO>> getAllEvents() {
+        List<Event> events = eventService.getAllEvents();
+        List<EventDTO> eventDTOs = events.stream()
+                .map(EventMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(eventDTOs);
     }
 
 }

@@ -7,6 +7,8 @@ import com.pbdesafio.ms_event_manager.repositorys.ViaCepClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EventService {
 
@@ -36,4 +38,10 @@ public class EventService {
     public Event getEventById(String id) {
         return eventRepository.findById(id).orElse(null);
     }
+
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
+    }
+
+
 }
