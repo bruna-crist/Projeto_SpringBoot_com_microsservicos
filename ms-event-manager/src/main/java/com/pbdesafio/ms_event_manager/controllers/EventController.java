@@ -49,6 +49,14 @@ public class EventController {
                 .toList();
         return ResponseEntity.ok(eventDTOs);
     }
+    @GetMapping("/get-all-events/sorted")
+    public ResponseEntity<List<EventDTO>> getAllEventsSorted() {
+        List<Event> events = eventService.getAllEventsSorted();
+        List<EventDTO> eventDTOs = events.stream()
+                .map(EventMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(eventDTOs);
+    }
 
 }
 

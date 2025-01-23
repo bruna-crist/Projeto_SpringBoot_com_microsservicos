@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -41,6 +42,15 @@ public class EventService {
 
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
+    }
+
+    public List<Event> getAllEventsSorted() {
+        return eventRepository.findAll()
+                .stream()
+                .sorted((event1, event2) -> event1
+                        .getEventName()
+                        .compareToIgnoreCase(event2.getEventName()))
+                .collect(Collectors.toList());
     }
 
 
