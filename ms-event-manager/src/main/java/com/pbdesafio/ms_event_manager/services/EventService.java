@@ -4,6 +4,7 @@ import com.pbdesafio.ms_event_manager.domain.Event;
 import com.pbdesafio.ms_event_manager.dtos.EventDTO;
 import com.pbdesafio.ms_event_manager.repositorys.EventRepository;
 import com.pbdesafio.ms_event_manager.repositorys.ViaCepClient;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class EventService {
         this.viaCepClient = viaCepClient;
     }
 
-    public Event createEvent(Event event) {
+    public Event createEvent(@NotNull Event event) {
             if (event.getCep() != null && !event.getCep().isEmpty()) {
                 EventDTO addressInfo = viaCepClient.getAddressByCep(event.getCep());
 
@@ -53,5 +54,23 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
-
+    public Event updateEvent(String id, EventDTO eventDTO) {
+        Event existingEvent = eventRepository.findById(id).orElse(null);
+        if (existingEvent == null) {
+            return null;
+        }
+        if (eventDTO.getCep() != null && !eventDTO.getCep().isEmpty()) {
+            EventDTO addressInfo = viaCepClient.getAddressByCep(eventDTO.getCep());
+            if (addressInfo != null) {
+                existingEvent.setEventName(eventDTO.getEventName());
+                existingEvent.setDateTime(eventDTO.getDateTime());
+                existingEvent.setCep(eventDTO.getCep());
+                existingEvent.setLogradouro(addressInfo.getLogradouro());
+                existingEvent.setBairro(addressInfo.getBairro());
+                existingEvent.setLocalidade(addressInfo.getLocalidade());
+                existingEvent.setUf(addressInfo.getUf());
+            }
+        }
+        return eventRepository.save(existingEvent);
+    }
 }

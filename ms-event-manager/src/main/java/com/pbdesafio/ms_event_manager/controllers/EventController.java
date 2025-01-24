@@ -58,5 +58,14 @@ public class EventController {
         return ResponseEntity.ok(eventDTOs);
     }
 
+    @PutMapping("/update-event/{id}")
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable String id, @Valid @RequestBody EventDTO eventDTO) {
+        Event updatedEvent = eventService.updateEvent(id, eventDTO);
+        if (updatedEvent == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(EventMapper.toDto(updatedEvent));
+    }
+
 }
 
