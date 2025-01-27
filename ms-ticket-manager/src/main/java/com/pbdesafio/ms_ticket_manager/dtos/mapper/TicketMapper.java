@@ -15,5 +15,4 @@ public class TicketMapper {
         ticketDTO.setEvent(event);
         return ticketDTO;
     }
-
 }

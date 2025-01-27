@@ -25,4 +25,12 @@ public class TicketController {
         TicketDTO ticketResponse = ticketService.createTicket(ticket);
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketResponse);
     }
+    @GetMapping("/get-ticket/{id}")
+    public ResponseEntity<TicketDTO> getTicketById(@PathVariable String id) {
+        TicketDTO ticketResponse = ticketService.getTicketById(id);
+        if (ticketResponse == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(ticketResponse);
+    }
 }

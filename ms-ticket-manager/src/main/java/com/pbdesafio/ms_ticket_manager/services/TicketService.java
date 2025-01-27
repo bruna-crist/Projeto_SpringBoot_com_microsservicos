@@ -29,9 +29,18 @@ public class TicketService {
 
         EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
         Ticket savedTicket = ticketRepository.save(ticket);
-
         rabbitTemplate.convertAndSend("ticket.exchange", "ticket.routingkey", savedTicket);
         return TicketMapper.toResponse(savedTicket, event);
+    }
+
+
+    public TicketDTO getTicketById(String id) {
+        Ticket ticket = ticketRepository.findById(id).orElse(null);
+        if (ticket == null) {
+            return null;
+        }
+        EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+        return TicketMapper.toResponse(ticket, event);
     }
 
 }
