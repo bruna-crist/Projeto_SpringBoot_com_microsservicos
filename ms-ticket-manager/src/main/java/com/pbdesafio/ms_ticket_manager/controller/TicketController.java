@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tickets")
 public class TicketController {
@@ -33,4 +35,13 @@ public class TicketController {
         }
         return ResponseEntity.ok(ticketResponse);
     }
+    @GetMapping("/get-ticket-by-cpf/{cpf}")
+    public ResponseEntity<List<TicketDTO>> getTicketsByCpf(@PathVariable String cpf) {
+        List<TicketDTO> ticketResponses = ticketService.getTicketsByCpf(cpf);
+        if (ticketResponses.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(ticketResponses);
+    }
+
 }

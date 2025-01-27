@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -43,4 +45,13 @@ public class TicketService {
         return TicketMapper.toResponse(ticket, event);
     }
 
+    public List<TicketDTO> getTicketsByCpf(String cpf) {
+        List<Ticket> tickets = ticketRepository.findByCpf(cpf);
+        return tickets.stream()
+                .map(ticket -> {
+                    EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+                    return TicketMapper.toResponse(ticket, event);
+                })
+                .collect(Collectors.toList());
+    }
 }
