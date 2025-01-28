@@ -44,4 +44,13 @@ public class TicketController {
         return ResponseEntity.ok(ticketResponses);
     }
 
+    @PutMapping("/update-ticket/{id}")
+    public ResponseEntity<TicketDTO> updateTicketById(@PathVariable String id, @RequestBody TicketDTO ticketDTO) {
+        TicketDTO updatedTicket = ticketService.updateTicket(id, ticketDTO);
+        if (updatedTicket == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(updatedTicket);
+    }
 }
+

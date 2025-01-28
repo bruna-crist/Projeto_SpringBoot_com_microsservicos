@@ -11,6 +11,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,4 +55,22 @@ public class TicketService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public TicketDTO updateTicket(String id, TicketDTO ticketDTO) {
+        Optional<Ticket> ticketOptional = ticketRepository.findById(id);
+
+        if (ticketOptional.isEmpty()) {
+            return null;
+        }
+        Ticket ticket = ticketOptional.get();
+        ticket.setCpf(ticketDTO.getCpf());
+        ticket.setCustomerName(ticketDTO.getCustomerName());
+        ticket.setCustomerMail(ticketDTO.getCustomerMail());
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        EventDTO event = eventClient.getEventById(updatedTicket.getEventId()).getBody();
+
+        return TicketMapper.toResponse(updatedTicket, event);
+    }
+
 }
