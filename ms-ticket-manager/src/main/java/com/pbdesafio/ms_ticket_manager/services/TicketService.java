@@ -83,4 +83,16 @@ public class TicketService {
         return TicketMapper.toResponse(updatedTicket, null);
     }
 
+    public List<TicketDTO> cancelTicketsByCpf(String cpf) {
+        List<Ticket> tickets = ticketRepository.findByCpf(cpf);
+        if (tickets.isEmpty()) {
+            return null;
+        }
+        tickets.forEach(ticket -> ticket.setStatus("cancelado"));
+        List<Ticket> updatedTickets = ticketRepository.saveAll(tickets);
+        return updatedTickets.stream()
+                .map(ticket -> TicketMapper.toResponse(ticket, null))
+                .toList();
+    }
+
 }

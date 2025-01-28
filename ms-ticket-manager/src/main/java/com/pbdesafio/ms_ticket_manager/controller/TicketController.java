@@ -61,5 +61,14 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/cancel-ticket-cpf/{cpf}")
+    public ResponseEntity<List<TicketDTO>> cancelTicketsByCpf(@PathVariable String cpf) {
+        List<TicketDTO> ticketResponses = ticketService.cancelTicketsByCpf(cpf);
+        if (ticketResponses == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
