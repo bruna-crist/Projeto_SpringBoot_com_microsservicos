@@ -52,5 +52,14 @@ public class TicketController {
         }
         return ResponseEntity.ok(updatedTicket);
     }
+    @DeleteMapping("/cancel-ticket/{id}")
+    public ResponseEntity<TicketDTO> cancelTicketById(@PathVariable String id) {
+        TicketDTO ticketResponse = ticketService.cancelTicketById(id);
+        if (ticketResponse == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
 }
 

@@ -58,7 +58,6 @@ public class TicketService {
 
     public TicketDTO updateTicket(String id, TicketDTO ticketDTO) {
         Optional<Ticket> ticketOptional = ticketRepository.findById(id);
-
         if (ticketOptional.isEmpty()) {
             return null;
         }
@@ -71,6 +70,17 @@ public class TicketService {
         EventDTO event = eventClient.getEventById(updatedTicket.getEventId()).getBody();
 
         return TicketMapper.toResponse(updatedTicket, event);
+    }
+
+    public TicketDTO cancelTicketById(String id) {
+        Optional<Ticket> optionalTicket = ticketRepository.findById(id);
+        if (optionalTicket.isEmpty()) {
+            return null;
+        }
+        Ticket ticket = optionalTicket.get();
+        ticket.setStatus("cancelado");
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return TicketMapper.toResponse(updatedTicket, null);
     }
 
 }
