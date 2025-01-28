@@ -67,7 +67,16 @@ public class TicketController {
         if (ticketResponses == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ticketResponses);
+    }
+
+    @GetMapping("/check-tickets-by-event/{eventId}")
+    public ResponseEntity<List<TicketDTO>> checkTicketsByEvent(@PathVariable String eventId) {
+        List<TicketDTO> tickets = ticketService.getTicketsByEventId(eventId);
+        if (tickets.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(tickets);
     }
 
 }

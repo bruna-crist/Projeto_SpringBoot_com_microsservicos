@@ -80,18 +80,31 @@ public class TicketService {
         Ticket ticket = optionalTicket.get();
         ticket.setStatus("cancelado");
         Ticket updatedTicket = ticketRepository.save(ticket);
-        return TicketMapper.toResponse(updatedTicket, null);
+        EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+        return TicketMapper.toResponse(updatedTicket,event);
     }
 
     public List<TicketDTO> cancelTicketsByCpf(String cpf) {
         List<Ticket> tickets = ticketRepository.findByCpf(cpf);
         if (tickets.isEmpty()) {
-            return null;
-        }
+        return null;
+    }
         tickets.forEach(ticket -> ticket.setStatus("cancelado"));
         List<Ticket> updatedTickets = ticketRepository.saveAll(tickets);
         return updatedTickets.stream()
-                .map(ticket -> TicketMapper.toResponse(ticket, null))
+            .map(ticket -> {
+                EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+                return TicketMapper.toResponse(ticket, event);})
+            .toList();
+
+    }
+
+    public List<TicketDTO> getTicketsByEventId(String eventId) {
+        List<Ticket> tickets = ticketRepository.findByEventId(eventId);
+        return tickets.stream()
+                .map(ticket -> {
+                    EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+                    return TicketMapper.toResponse(ticket, event);})
                 .toList();
     }
 
