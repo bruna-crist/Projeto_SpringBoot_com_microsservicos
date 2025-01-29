@@ -7,13 +7,17 @@ import com.pbdesafio.ms_ticket_manager.dtos.EventDTO;
 import com.pbdesafio.ms_ticket_manager.dtos.TicketDTO;
 import com.pbdesafio.ms_ticket_manager.dtos.TicketMessageDTO;
 import com.pbdesafio.ms_ticket_manager.dtos.mapper.TicketMapper;
+import com.pbdesafio.ms_ticket_manager.exceptions.MissingFieldException;
 import com.pbdesafio.ms_ticket_manager.repositorys.EventClient;
 import com.pbdesafio.ms_ticket_manager.repositorys.TicketRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,21 +35,35 @@ public class TicketService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public TicketDTO createTicket(@NotNull Ticket ticket) {
+    public TicketDTO createTicket(@NotNull Ticket ticket)
+            throws JsonProcessingException {
+            validateTicket(ticket);
 
-        EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
-        Ticket savedTicket = ticketRepository.save(ticket);
-        TicketMessageDTO messageDTO = TicketMapper.toMessage(savedTicket);
-        messageDTO.setEvent(event);
-        rabbitTemplate.convertAndSend("ticket.exchange", "ticket.routingkey", messageDTO);
-        try {
+            EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
+            Ticket savedTicket = ticketRepository.save(ticket);
+            TicketMessageDTO messageDTO = TicketMapper.toMessage(savedTicket);
+            messageDTO.setEvent(event);
+
+            rabbitTemplate.convertAndSend("ticket.exchange", "ticket.routingkey", messageDTO);
             ObjectMapper mapper = new ObjectMapper();
             String formattedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(messageDTO);
-            System.out.println("Seu ingresso foi criado com sucesso: \n" + formattedJson + "\n Aproveite o Evento! :)");
-        } catch (JsonProcessingException e) {
-            System.err.println("Erro ao formatar a mensagem JSON: " + e.getMessage());
-        }
-        return TicketMapper.toResponse(savedTicket, event);
+            System.out.println("Seu ingresso foi criado com sucesso: \n" + formattedJson
+                    + "\n Aproveite o Evento! :)");
+            return TicketMapper.toResponse(savedTicket, event);
+    }
+
+    private void validateTicket(@NotNull Ticket ticket) {
+        Map<String, String> fields = new HashMap<>();
+        fields.put("customerName", ticket.getCustomerName());
+        fields.put("cpf", ticket.getCpf());
+        fields.put("customerMail", ticket.getCustomerMail());
+        fields.put("eventId", ticket.getEventId());
+
+        fields.forEach((field, value) -> {
+            if (value == null || value.trim().isEmpty()) {
+                throw new MissingFieldException("O campo '" + field + "' é obrigatório.");
+            }
+        });
     }
 
     public TicketDTO getTicketById(String id) {

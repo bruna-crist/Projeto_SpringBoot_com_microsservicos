@@ -1,5 +1,6 @@
 package com.pbdesafio.ms_ticket_manager.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pbdesafio.ms_ticket_manager.domain.Ticket;
 import com.pbdesafio.ms_ticket_manager.dtos.TicketDTO;
 import com.pbdesafio.ms_ticket_manager.services.TicketService;
@@ -23,7 +24,8 @@ public class TicketController {
 
 
     @PostMapping("/create-ticket")
-    public ResponseEntity<TicketDTO> createTicket(@RequestBody Ticket ticket) {
+    public ResponseEntity<TicketDTO> createTicket(@RequestBody Ticket ticket)
+            throws JsonProcessingException {
         TicketDTO ticketResponse = ticketService.createTicket(ticket);
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketResponse);
     }
