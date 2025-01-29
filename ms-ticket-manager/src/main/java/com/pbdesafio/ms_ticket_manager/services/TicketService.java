@@ -1,8 +1,11 @@
 package com.pbdesafio.ms_ticket_manager.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pbdesafio.ms_ticket_manager.domain.Ticket;
 import com.pbdesafio.ms_ticket_manager.dtos.EventDTO;
 import com.pbdesafio.ms_ticket_manager.dtos.TicketDTO;
+import com.pbdesafio.ms_ticket_manager.dtos.TicketMessageDTO;
 import com.pbdesafio.ms_ticket_manager.dtos.mapper.TicketMapper;
 import com.pbdesafio.ms_ticket_manager.repositorys.EventClient;
 import com.pbdesafio.ms_ticket_manager.repositorys.TicketRepository;
@@ -32,10 +35,18 @@ public class TicketService {
 
         EventDTO event = eventClient.getEventById(ticket.getEventId()).getBody();
         Ticket savedTicket = ticketRepository.save(ticket);
-        rabbitTemplate.convertAndSend("ticket.exchange", "ticket.routingkey", savedTicket);
+        TicketMessageDTO messageDTO = TicketMapper.toMessage(savedTicket);
+        messageDTO.setEvent(event);
+        rabbitTemplate.convertAndSend("ticket.exchange", "ticket.routingkey", messageDTO);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String formattedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(messageDTO);
+            System.out.println("Seu ingresso foi criado com sucesso: \n" + formattedJson + "\n Aproveite o Evento! :)");
+        } catch (JsonProcessingException e) {
+            System.err.println("Erro ao formatar a mensagem JSON: " + e.getMessage());
+        }
         return TicketMapper.toResponse(savedTicket, event);
     }
-
 
     public TicketDTO getTicketById(String id) {
         Ticket ticket = ticketRepository.findById(id).orElse(null);
