@@ -2,13 +2,16 @@ package com.pbdesafio.ms_event_manager.services;
 
 import com.pbdesafio.ms_event_manager.domain.Event;
 import com.pbdesafio.ms_event_manager.dtos.EventDTO;
+import com.pbdesafio.ms_event_manager.exceptions.MissingFieldException;
 import com.pbdesafio.ms_event_manager.repositorys.EventRepository;
 import com.pbdesafio.ms_event_manager.repositorys.ViaCepClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +27,9 @@ public class EventService {
     }
 
     public Event createEvent(@NotNull Event event) {
+        validateEvent(event);
             if (event.getCep() != null && !event.getCep().isEmpty()) {
+
                 EventDTO addressInfo = viaCepClient.getAddressByCep(event.getCep());
 
                 if (addressInfo != null) {
@@ -35,6 +40,18 @@ public class EventService {
                 }
             }
         return eventRepository.save(event);
+    }
+    private void validateEvent(@NotNull Event event) {
+        Map<String, String> fields = new HashMap<>();
+        fields.put("eventName", event.getEventName());
+        fields.put("dataTime", event.getDateTime().toString());
+        fields.put("cep", event.getCep());
+
+        fields.forEach((field, value) -> {
+            if (value == null || value.trim().isEmpty()) {
+                throw new MissingFieldException("O campo '" + field + "' é obrigatório.");
+            }
+        });
     }
 
     public Event getEventById(String id) {
