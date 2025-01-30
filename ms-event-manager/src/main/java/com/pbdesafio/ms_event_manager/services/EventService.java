@@ -2,13 +2,18 @@ package com.pbdesafio.ms_event_manager.services;
 
 import com.pbdesafio.ms_event_manager.domain.Event;
 import com.pbdesafio.ms_event_manager.dtos.EventDTO;
+import com.pbdesafio.ms_event_manager.dtos.TicketDTO;
+import com.pbdesafio.ms_event_manager.exceptions.EventDeletionException;
 import com.pbdesafio.ms_event_manager.exceptions.MissingFieldException;
 import com.pbdesafio.ms_event_manager.repositorys.EventRepository;
+import com.pbdesafio.ms_event_manager.repositorys.TicketClient;
 import com.pbdesafio.ms_event_manager.repositorys.ViaCepClient;
+import feign.FeignException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +24,13 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final ViaCepClient viaCepClient;
+    private final TicketClient ticketClient;
 
     @Autowired
-    public EventService(EventRepository eventRepository, ViaCepClient viaCepClient) {
+    public EventService(EventRepository eventRepository, ViaCepClient viaCepClient, TicketClient ticketClient) {
         this.eventRepository = eventRepository;
         this.viaCepClient = viaCepClient;
+        this.ticketClient = ticketClient;
     }
 
     public Event createEvent(@NotNull Event event) {
@@ -90,7 +97,15 @@ public class EventService {
         }
         return eventRepository.save(existingEvent);
     }
-    public void deleteEvent(String id) {
-        eventRepository.deleteById(id);
+    public void deleteEvent(String eventId) {
+        List<TicketDTO> tickets = Collections.emptyList();
+        try {
+            tickets = ticketClient.checkTicketsByEvent(eventId);
+        } catch (FeignException.NotFound ignored) {
+        }
+        if (!tickets.isEmpty()) {
+            throw new EventDeletionException("O evento não pode ser deletado porque possui ingressos vendidos.");
+        }
+        eventRepository.deleteById(eventId);
     }
 }

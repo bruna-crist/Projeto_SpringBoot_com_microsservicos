@@ -3,6 +3,7 @@ package com.pbdesafio.ms_event_manager.controllers;
 import com.pbdesafio.ms_event_manager.domain.Event;
 import com.pbdesafio.ms_event_manager.dtos.EventDTO;
 import com.pbdesafio.ms_event_manager.dtos.mapper.EventMapper;
+import com.pbdesafio.ms_event_manager.exceptions.EventDeletionException;
 import com.pbdesafio.ms_event_manager.services.EventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/events")
 public class EventController {
 
-    private EventService eventService;
+    private final EventService eventService;
 
     @Autowired
     public EventController(EventService eventService) {
@@ -67,9 +68,13 @@ public class EventController {
         return ResponseEntity.ok(EventMapper.toDto(updatedEvent));
     }
     @DeleteMapping("/delete-event/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable String id) {
-        eventService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteEvent(@PathVariable String id) {
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.noContent().build();
+        } catch (EventDeletionException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 }
 
