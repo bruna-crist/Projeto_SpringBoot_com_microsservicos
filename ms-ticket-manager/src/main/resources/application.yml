@@ -13,7 +13,7 @@ spring:
     routingkey: ticket.routingkey
   data:
     mongodb:
-      uri: mongodb://localhost:27017/db_ticket
+      uri: mongodb://admin:admin@localhost:27017/db_ticket?authSource=admin
   cloud:
     feign:
       client:
