@@ -1,7 +1,8 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://admin:admin@localhost:27017/db_event?authSource=admin
+      uri: mongodb://admin:admin@db_event:27017/db_event?authSource=admin
+      #uri: mongodb://admin:admin@localhost:27017/db_event?authSource=admin
     cloud:
       feign:
         client:

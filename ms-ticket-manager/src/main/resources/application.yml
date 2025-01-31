@@ -4,7 +4,7 @@ spring:
   server:
     port: 8081
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: admin
     password: admin
@@ -13,7 +13,8 @@ spring:
     routingkey: ticket.routingkey
   data:
     mongodb:
-      uri: mongodb://admin:admin@localhost:27017/db_ticket?authSource=admin
+      uri: mongodb://admin:admin@db_ticket:27017/db_ticket?authSource=admin
+      #uri: mongodb://admin:admin@localhost:27017/db_ticket?authSource=admin
   cloud:
     feign:
       client:
