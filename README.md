@@ -102,8 +102,7 @@ Método: POST
 
 Corpo da Requisição (Entrada):
 
-````
-json
+````json
 Copy
 {
   "eventName": "Slipknot",
