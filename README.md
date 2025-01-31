@@ -1,29 +1,30 @@
 # PbDes03_BrunaCristinaBrandaoeSilva
 
-##Projeto de Microserviços com Spring Boot, Docker e MongoDB
+## Projeto de Microserviços com Spring Boot, Docker e MongoDB
+
 Este projeto consiste em dois microserviços:
 
-ms-event-manager: Gerencia eventos.
+1. **ms-event-manager**: Gerencia eventos.
+2. **ms-ticket-manager**: Gerencia tickets para os eventos.
 
-ms-ticket-manager: Gerencia tickets para os eventos.
+Os microserviços se comunicam via **OpenFeign** e utilizam **MongoDB** para persistência de dados. O projeto está configurado para rodar em containers Docker.
 
-Os microserviços se comunicam via OpenFeign e utilizam MongoDB para persistência de dados. O projeto está configurado para rodar em containers Docker.
+---
 
-🚀 Como Rodar o Projeto
-Pré-requisitos
-Docker instalado e configurado.
+## 🚀 Como Rodar o Projeto
 
-Docker Compose instalado.
+### Pré-requisitos
+- **Docker** instalado e configurado.
+- **Docker Compose** instalado.
+- **Git** (para clonar o repositório).
 
-Git (para clonar o repositório).
+### Passos para Execução
 
-Passos para Execução
-Clone o repositório:
-
-bash
-Copy
-git clone https://github.com/seu-usuario/PbDes03_BrunaCristinaBrandaoeSilva.git
-cd PbDes03_BrunaCristinaBrandaoeSilva
+1. **Clone o repositório**:
+   ```bash
+   git clone https://github.com/seu-usuario/PbDes03_BrunaCristinaBrandaoeSilva.git
+   cd PbDes03_BrunaCristinaBrandaoeSilva
+   
 Construa e Inicie os Containers:
 Execute o comando abaixo para construir as imagens e iniciar os containers:
 
@@ -44,7 +45,7 @@ Usuário: admin
 
 Senha: admin
 
-Acesso oo MongoDB pelo Docker:
+Acesso ao MongoDB pelo Docker:
 
 db_event: Disponível em mongodb://admin:admin@db_event:27017/db_event?authSource=admin.
 
@@ -56,73 +57,6 @@ O microserviço ms-ticket-manager pode apresentar o erro Error: socket hang up a
 
 Observação
 O db_event funciona normalmente, e o microserviço ms-event-manager não é afetado por esse problema.
-
-📝 Requisições de Exemplo
-1. Criar um Evento
-URL: http://localhost:8080/events/create-event
-
-Método: POST
-
-Corpo da Requisição:
-
-json
-Entrada:
-{
-        "eventName": "Slipknot",
-        "dateTime": "2025-03-30T21:00:00",
-        "cep":"01010-000"
-}
-
-Saída: 
-{
-        "id": "679ce3cca231cf7f90cda604",
-        "eventName": "Slipknot",
-        "dateTime": "2025-03-30T21:00:00",
-        "cep": "01010-000",
-        "logradouro": "Rua São Bento",
-        "bairro": "Centro",
-        "localidade": "São Paulo",
-        "uf": "SP"
-    }
-    
-2. Criar um Ticket
-URL: http://localhost:8081/tickets/create-ticket
-
-Método: POST
-
-Corpo da Requisição:
-
-json
-Entrada:
-{
-  "customerName": "Maria",
-  "cpf": "12345678",
-  "customerMail": "maria@email.com",
-  "eventId": "679d0b92dfcc89425a0d4bda",
-  "eventName": "Slipknot",
-  "brlamount": "R$ 50,00",
-  "usdamount": "$ 10,00"
-}
-
-Saída:
-{
-	"ticketId": "679d0b92dfcc89425a0d4bda"
-	"cpf": "12345678",
-  "customerName": "Maria",
-  "customerMail": "maria@email.com",
-  "event": {
-	    "eventId": "679ce3cca231cf7f90cda604",
-      "eventName": "Slipknot",
-      "eventDateTime": "2025-03-30T21:00:00",
-      "logradouro": "Rua São Bento",
-      "bairro": "Centro",
-      "localidade": "São Paulo",
-      "uf": "SP"
-    },
-  "BRLAmount": "R$ 50,00"
-  "USDAmount": "$ 10,00"
-  "status": "concluído"
-}
 
 
 🛠️ Estrutura do Projeto
@@ -153,7 +87,78 @@ RabbitMQ: Usado para comunicação assíncrona entre os microserviços.
 
 🐳 Docker Compose
 O projeto utiliza o Docker Compose para orquestrar os containers
-
 📌 Considerações Finais
 O projeto foi desenvolvido com Spring Boot, Docker e MongoDB.
+
 O problema conhecido com o db_ticket será resolvido em futuras atualizações.
+
+
+📝 Requisições de Exemplo
+1. Criar um Evento
+URL: http://localhost:8080/events/create-event
+
+Método: POST
+
+Corpo da Requisição (Entrada):
+
+json
+Copy
+```{
+  "eventName": "Slipknot",
+  "dateTime": "2025-03-30T21:00:00",
+  "cep": "01010-000"
+}
+Resposta (Saída):
+
+json
+Copy
+{
+  "id": "679ce3cca231cf7f90cda604",
+  "eventName": "Slipknot",
+  "dateTime": "2025-03-30T21:00:00",
+  "cep": "01010-000",
+  "logradouro": "Rua São Bento",
+  "bairro": "Centro",
+  "localidade": "São Paulo",
+  "uf": "SP"
+}
+2. Criar um Ticket
+URL: http://localhost:8081/tickets/create-ticket
+
+Método: POST
+
+Corpo da Requisição (Entrada):
+
+json
+Copy
+{
+  "customerName": "Maria",
+  "cpf": "12345678",
+  "customerMail": "maria@email.com",
+  "eventId": "679d0b92dfcc89425a0d4bda",
+  "eventName": "Slipknot",
+  "brlamount": "R$ 50,00",
+  "usdamount": "$ 10,00"
+}
+Resposta (Saída):
+
+json
+Copy
+{
+  "ticketId": "679d0b92dfcc89425a0d4bda",
+  "cpf": "12345678",
+  "customerName": "Maria",
+  "customerMail": "maria@email.com",
+  "event": {
+    "eventId": "679ce3cca231cf7f90cda604",
+    "eventName": "Slipknot",
+    "eventDateTime": "2025-03-30T21:00:00",
+    "logradouro": "Rua São Bento",
+    "bairro": "Centro",
+    "localidade": "São Paulo",
+    "uf": "SP"
+  },
+  "BRLAmount": "R$ 50,00",
+  "USDAmount": "$ 10,00",
+  "status": "concluído"
+}
