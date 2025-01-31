@@ -36,9 +36,7 @@ public class EventService {
     public Event createEvent(@NotNull Event event) {
         validateEvent(event);
             if (event.getCep() != null && !event.getCep().isEmpty()) {
-
                 EventDTO addressInfo = viaCepClient.getAddressByCep(event.getCep());
-
                 if (addressInfo != null) {
                     event.setLogradouro(addressInfo.getLogradouro());
                     event.setBairro(addressInfo.getBairro());
@@ -48,21 +46,22 @@ public class EventService {
             }
         return eventRepository.save(event);
     }
-    private void validateEvent(@NotNull Event event) {
-        Map<String, String> fields = new HashMap<>();
-        fields.put("eventName", event.getEventName());
-        fields.put("dataTime", event.getDateTime().toString());
-        fields.put("cep", event.getCep());
-
-        fields.forEach((field, value) -> {
-            if (value == null || value.trim().isEmpty()) {
-                throw new MissingFieldException("O campo '" + field + "' é obrigatório.");
-            }
-        });
+    private void validateEvent(Event event) {
+        validateField(event.getEventName(), "eventName");
+        validateField(event.getDateTime(), "dateTime");
+        validateField(event.getCep(), "cep");
+    }
+    private void validateField(Object field, String fieldName) {
+        if (field == null || (field instanceof String && ((String) field)
+                .trim()
+                .isEmpty())) {
+            throw new MissingFieldException("O campo '" + fieldName + "' é obrigatório.");
+        }
     }
 
     public Event getEventById(String id) {
-        return eventRepository.findById(id).orElse(null);
+        return eventRepository.findById(id)
+                .orElse(null);
     }
 
     public List<Event> getAllEvents() {
@@ -83,11 +82,15 @@ public class EventService {
         if (existingEvent == null) {
             return null;
         }
+        if (eventDTO.getEventName() != null) {
+            existingEvent.setEventName(eventDTO.getEventName());
+        }
+        if (eventDTO.getDateTime() != null) {
+            existingEvent.setDateTime(eventDTO.getDateTime());
+        }
         if (eventDTO.getCep() != null && !eventDTO.getCep().isEmpty()) {
             EventDTO addressInfo = viaCepClient.getAddressByCep(eventDTO.getCep());
             if (addressInfo != null) {
-                existingEvent.setEventName(eventDTO.getEventName());
-                existingEvent.setDateTime(eventDTO.getDateTime());
                 existingEvent.setCep(eventDTO.getCep());
                 existingEvent.setLogradouro(addressInfo.getLogradouro());
                 existingEvent.setBairro(addressInfo.getBairro());
