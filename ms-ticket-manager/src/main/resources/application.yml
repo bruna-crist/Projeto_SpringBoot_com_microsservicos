@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ms-ticket
+  server:
+    port: 8081
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin
+  ticket:
+    exchange: ticket.exchange
+    routingkey: ticket.routingkey
+  data:
+    mongodb:
+      uri: mongodb://admin:admin@db_ticket:27017/db_ticket?authSource=admin
+      #uri: mongodb://admin:admin@localhost:27017/db_ticket?authSource=admin
+  cloud:
+    feign:
+      client:
+        config:
+          viaCepClient:
+            url: https://viacep.com.br/
+
