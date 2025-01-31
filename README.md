@@ -95,6 +95,7 @@ O problema conhecido com o db_ticket será resolvido em futuras atualizações.
 
 📝 Requisições de Exemplo
 1. Criar um Evento
+````
 URL: http://localhost:8080/events/create-event
 
 Método: POST
