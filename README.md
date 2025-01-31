@@ -101,9 +101,10 @@ Método: POST
 
 Corpo da Requisição (Entrada):
 
+````
 json
 Copy
-```{
+{
   "eventName": "Slipknot",
   "dateTime": "2025-03-30T21:00:00",
   "cep": "01010-000"
