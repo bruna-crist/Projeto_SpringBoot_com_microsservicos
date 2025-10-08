@@ -103,7 +103,6 @@ Método: POST
 Corpo da Requisição (Entrada):
 
 ````json
-Copy
 {
   "eventName": "Slipknot",
   "dateTime": "2025-03-30T21:00:00",
@@ -112,7 +111,6 @@ Copy
 Resposta (Saída):
 
 json
-Copy
 {
   "id": "679ce3cca231cf7f90cda604",
   "eventName": "Slipknot",
@@ -131,7 +129,6 @@ Método: POST
 Corpo da Requisição (Entrada):
 
 json
-Copy
 {
   "customerName": "Maria",
   "cpf": "12345678",
@@ -144,7 +141,6 @@ Copy
 Resposta (Saída):
 
 json
-Copy
 {
   "ticketId": "679d0b92dfcc89425a0d4bda",
   "cpf": "12345678",
