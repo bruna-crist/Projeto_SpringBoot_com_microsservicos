@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   ms-event-manager:
     build:
@@ -29,7 +27,8 @@ services:
       - rabbitmq
 
   db_event:
-    image: mongo:latest
+    image: mongo:7
+    restart: always
     ports:
       - "27017:27017"
     environment:
@@ -39,7 +38,8 @@ services:
       - db_event_data:/data/db
 
   db_ticket:
-    image: mongo:latest
+    image: mongo:7
+    restart: always
     ports:
       - "27018:27017"
     environment:

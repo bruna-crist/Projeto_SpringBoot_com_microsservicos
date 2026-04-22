@@ -1,14 +1,14 @@
-FROM maven:3.8.6-openjdk-17 as build
+FROM maven:3.9.6-eclipse-temurin as build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-COPY target/ms-ticket-manager-0.0.1-SNAPSHOT.jar ms-ticket-manager.jar
+COPY --from=build /app/target/ms-ticket-manager-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java", "-jar", "ms-ticket-manager.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
