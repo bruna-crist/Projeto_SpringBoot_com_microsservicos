@@ -1,15 +1,80 @@
-# PbDes03_BrunaCristinaBrandaoeSilva
+# 🎟️ Arquitetura de Microsserviços com Spring Boot
 
-## Projeto de Microserviços com Spring Boot, Docker e MongoDB
+## 🛠️ Tecnologias
 
-Este projeto consiste em dois microserviços:
+![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-3.x-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Spring Cloud OpenFeign](https://img.shields.io/badge/OpenFeign-Client-black?style=for-the-badge&logo=spring&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Messaging-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-1. **ms-event-manager**: Gerencia eventos.
-2. **ms-ticket-manager**: Gerencia tickets para os eventos.
 
-Os microserviços se comunicam via **OpenFeign** e utilizam **MongoDB** para persistência de dados. O projeto está configurado para rodar em containers Docker.
+## 📌 Visão Geral
+Projeto demonstrando uma arquitetura de microsserviços utilizando **Spring Boot**, mensageria com **RabbitMQ**, persistência com **MongoDB** e orquestração com **Docker** + **Docker Compose**.
+
+A solução é composta por dois microsserviços independentes, cada um com seu banco de dados isolado, comunicando-se de forma síncrona **(OpenFeign)** e assíncrona **(RabbitMQ)**.
 
 ---
+
+## 🏗️ Arquitetura do Sistema
+
+```mermaid
+flowchart LR
+    Client[Client]
+
+    subgraph Microservices
+        MS1[ms-event-manager]
+        MS2[ms-ticket-manager]
+    end
+
+    subgraph Databases
+        DB1[(MongoDB - db_event)]
+        DB2[(MongoDB - db_ticket)]
+    end
+
+    MQ[(RabbitMQ)]
+
+    Client --> MS1
+    Client --> MS2
+
+    MS2 -->|Feign| MS1
+    MS1 --> DB1
+    MS2 --> DB2
+
+    MS2 -->|Publish Event| MQ
+    MQ -->|Consume Event| MS2
+
+```
+---
+
+### 📦 Microserviços
+
+| Serviço             | Responsabilidade              | Banco de Dados | Integrações | Endpoints |
+|--------------------|------------------------------|----------------|-------------|----------|
+| ms-event-manager   | Gerenciar eventos            | db_event       | -           | Criar e consultar eventos |
+| ms-ticket-manager  | Gerenciar tickets de eventos | db_ticket      | RabbitMQ    | Criar e consultar tickets |
+
+---
+
+### 🗄️ Banco de Dados
+
+| Banco       | Descrição                                      | Microserviço         |
+|------------|-----------------------------------------------|----------------------|
+| db_event   | Armazena dados dos eventos                    | ms-event-manager     |
+| db_ticket  | Armazena dados dos tickets                    | ms-ticket-manager    |
+
+---
+
+### 📡 Mensageria
+
+| Tecnologia | Descrição                                               |
+|-----------|--------------------------------------------------------|
+| RabbitMQ  | Comunicação assíncrona entre os microserviços           |
+
+---
+
 
 ## 🚀 Como Rodar o Projeto
 
@@ -22,15 +87,15 @@ Os microserviços se comunicam via **OpenFeign** e utilizam **MongoDB** para per
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/seu-usuario/PbDes03_BrunaCristinaBrandaoeSilva.git
-   cd PbDes03_BrunaCristinaBrandaoeSilva
+   git clone https://github.com/bruna-crist/Projeto_SpringBoot_com_microsservicos.git
+   cd Projeto_SpringBoot_com_microsservicos
    ```
 
 2. **Construa e inicie os containers**:
 
-```bash
-docker-compose up --build
-```
+   ```bash
+   docker-compose up --build
+   ```
 
 3. **Acesse os microserviços**:
 
@@ -43,76 +108,19 @@ docker-compose up --build
 * Usuário: `admin`
 * Senha: `admin`
 
-5. **Acesso ao MongoDB via Docker**:
-
-* **db_event**:
-
-  ```
-  mongodb://admin:admin@db_event:27017/db_event?authSource=admin
-  ```
-
-* **db_ticket**:
-
-  ```
-  mongodb://admin:admin@db_ticket:27018/db_ticket?authSource=admin
-  ```
-
 ---
 
-## ⚠️ Problema Conhecido
+## ⚠️ Persistência de Dados
 
-### Erro no db_ticket
+Os bancos MongoDB utilizam volumes Docker.
 
-O microserviço **ms-ticket-manager** pode apresentar o erro:
-
-```
-Error: socket hang up
-```
-
-Esse erro ocorre ao tentar criar um ticket (por exemplo, via Postman) e está relacionado a um problema de conexão com o MongoDB **db_ticket**. O container do banco encerra abruptamente, impedindo a conexão do microserviço.
-
-**Observação:**
-
-* O banco **db_event** funciona normalmente.
-* O microserviço **ms-event-manager** não é afetado por esse problema.
-
+Isso significa que:
+1. Ao rodar o projeto pela primeira vez, os bancos iniciam vazios
+2. É necessário criar um evento antes de criar um ticket
+3. Se for executado ``` docker compose down -v ```, todos os dados serão apagados
 ---
 
-## 🛠️ Estrutura do Projeto
-
-### Microserviços
-
-#### ms-event-manager
-
-* Gerencia eventos
-* Conecta-se ao **db_event** (MongoDB)
-* Expõe endpoints para criação e consulta de eventos
-
-#### ms-ticket-manager
-
-* Gerencia tickets para eventos
-* Conecta-se ao **db_ticket** (MongoDB)
-* Integra-se ao **RabbitMQ**
-* Expõe endpoints para criação e consulta de tickets
-
-### Banco de Dados
-
-* **db_event**: MongoDB do microserviço ms-event-manager
-* **db_ticket**: MongoDB do microserviço ms-ticket-manager
-
-### Mensageria
-
-* **RabbitMQ**: Utilizado para comunicação assíncrona entre os microserviços
-
----
-
-## 🐳 Docker Compose
-
-O projeto utiliza **Docker Compose** para orquestrar todos os containers necessários (microserviços, bancos de dados e mensageria).
-
----
-
-## 📝 Requisições de Exemplo
+## 📝 Requisições de teste
 
 ### 1. Criar um Evento
 
@@ -123,7 +131,7 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
 
 ```json
 {
-  "eventName": "Slipknot",
+  "eventName": "Show Rock",
   "dateTime": "2025-03-30T21:00:00",
   "cep": "01010-000"
 }
@@ -133,8 +141,8 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
 
 ```json
 {
-  "id": "679ce3cca231cf7f90cda604",
-  "eventName": "Slipknot",
+  "id": "ID_DO_EVENTO",
+  "eventName": "Show Rock",
   "dateTime": "2025-03-30T21:00:00",
   "cep": "01010-000",
   "logradouro": "Rua São Bento",
@@ -143,7 +151,6 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
   "uf": "SP"
 }
 ```
-
 ---
 
 ### 2. Criar um Ticket
@@ -158,8 +165,8 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
   "customerName": "Maria",
   "cpf": "12345678",
   "customerMail": "maria@email.com",
-  "eventId": "679d0b92dfcc89425a0d4bda",
-  "eventName": "Slipknot",
+  "eventId": "ID_DO_EVENTO",
+  "eventName": "Show Rock",
   "brlamount": "R$ 50,00",
   "usdamount": "$ 10,00"
 }
@@ -169,13 +176,13 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
 
 ```json
 {
-  "ticketId": "679d0b92dfcc89425a0d4bda",
+  "ticketId": "ID_DO_TICKET",
   "cpf": "12345678",
   "customerName": "Maria",
   "customerMail": "maria@email.com",
   "event": {
-    "eventId": "679ce3cca231cf7f90cda604",
-    "eventName": "Slipknot",
+    "eventId": "ID_DO_EVENTO",
+    "eventName": "Show Rock",
     "eventDateTime": "2025-03-30T21:00:00",
     "logradouro": "Rua São Bento",
     "bairro": "Centro",
@@ -190,8 +197,15 @@ O projeto utiliza **Docker Compose** para orquestrar todos os containers necess�
 
 ---
 
-## 📌 Considerações Finais
+### 🧠 Problema Técnico Resolvido
 
-Este projeto foi desenvolvido com **Spring Boot**, **Docker**, **MongoDB** e **RabbitMQ**, com foco em arquitetura de microserviços.
+O ```ms-ticket-manager``` tentava acessar o ```ms-event-manager``` utilizando ```localhost```, o que não funciona em ambiente **Docker**, pois cada container possui seu próprio ```localhost```.
 
-O problema conhecido relacionado ao **db_ticket** será tratado em futuras atualizações do projeto.
+A solução foi configurar o Feign para utilizar o hostname do serviço na rede Docker:
+```http://ms-event-manager:8080```.
+
+---
+
+#### 👩‍💻 Autora
+
+Bruna Cristina
